@@ -82,7 +82,9 @@ class ImageDataSource constructor(val contextWrapper: ContextWrapper) {
                 val imageHeight = cursor.getInt(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[4]))
                 val imageMimeType = cursor.getString(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[5]))
                 val imageAddTime = cursor.getLong(cursor.getColumnIndexOrThrow(IMAGE_PROJECTION[6]))
-                Log.i(TAG, Image(imageName, imagePath, imageMimeType, imageSize, imageWidth, imageHeight, imageAddTime).toString())
+                val image = Image(imageName, imagePath, imageMimeType, imageSize, imageWidth, imageHeight, imageAddTime)
+                Log.i(TAG, image.toString())
+                images.add(image)
             }
             cursor.close()
             images
