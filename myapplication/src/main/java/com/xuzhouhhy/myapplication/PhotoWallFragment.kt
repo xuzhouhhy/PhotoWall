@@ -1,15 +1,16 @@
 package com.xuzhouhhy.myapplication
 
+import android.graphics.PixelFormat
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -47,6 +48,42 @@ class PhotoWallFragment : Fragment() {
             override fun getFragment(): Fragment {
                 return this@PhotoWallFragment
             }
+        }
+
+        activity?.let { it ->
+            val displayMetrics = it.resources.displayMetrics
+            val width = displayMetrics.widthPixels - displayMetrics.density * 10 * 2
+            val ivWidth = displayMetrics.density * 300
+            val lp = WindowManager.LayoutParams(
+//                    width.toInt(),
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    else
+                        WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.RGBA_8888)
+                    .apply {
+                        gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                    }
+            lp.windowAnimations = R.style.AlertImageAnimation
+            val iv = ImageView(it).apply {
+                this.scaleType = ImageView.ScaleType.CENTER_CROP
+                val slideLength = ivWidth.toInt()
+//                this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+//                        ViewGroup.LayoutParams.WRAP_CONTENT)
+                this.layoutParams = ViewGroup.LayoutParams(slideLength, slideLength)
+                Glide.with(it)
+                        .load(R.drawable.xianruo)
+                        .apply(RequestOptions().placeholder(android.R.color.darker_gray))
+                        .into(this)
+            }
+//            tv.text = "testtesttesttesttesttesttesttesttesttesttest"
+            recyclePhotoWall.postDelayed({
+                it.window?.addContentView(iv, lp)
+            }, 1000)
         }
     }
 
