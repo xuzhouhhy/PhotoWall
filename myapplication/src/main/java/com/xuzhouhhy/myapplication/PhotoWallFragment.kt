@@ -29,6 +29,21 @@ class PhotoWallFragment : Fragment() {
 
     var imageList = mutableListOf<Image>()
 
+    private val lp = WindowManager.LayoutParams(
+//                    width.toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else
+                WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.RGBA_8888)
+            .apply {
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+            }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_photo_wall, container, false)
     }
@@ -54,20 +69,6 @@ class PhotoWallFragment : Fragment() {
             val displayMetrics = it.resources.displayMetrics
             val width = displayMetrics.widthPixels - displayMetrics.density * 10 * 2
             val ivWidth = displayMetrics.density * 300
-            val lp = WindowManager.LayoutParams(
-//                    width.toInt(),
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                    else
-                        WindowManager.LayoutParams.TYPE_PHONE,
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                    PixelFormat.RGBA_8888)
-                    .apply {
-                        gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-                    }
             lp.windowAnimations = R.style.AlertImageAnimation
             val iv = ImageView(it).apply {
                 this.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -80,11 +81,43 @@ class PhotoWallFragment : Fragment() {
                         .apply(RequestOptions().placeholder(android.R.color.darker_gray))
                         .into(this)
             }
+            addTouchListenerToFloatView(iv)
 //            tv.text = "testtesttesttesttesttesttesttesttesttesttest"
             recyclePhotoWall.postDelayed({
                 it.window?.addContentView(iv, lp)
             }, 1000)
         }
+    }
+
+    private fun addTouchListenerToFloatView(iv: ImageView) {
+        iv.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+//                    val rawX = event.rawX
+//                    val rawY = event.rawY
+                    updatePosition(Positon(event.rawX, event.rawY), iv)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun updatePosition(positon: Positon, iv: ImageView) {
+        Log.i(TAG, "update position x:$positon")
+        val left = iv.left
+        val right = iv.right
+        val top = iv.top
+        val bottom = iv.bottom
+        Log.i(TAG, "left:$left , right:$right , top:$top , bottom:$bottom.")
+//        iv.layout(left + right +)
+//        activity?.window?.addContentView(iv, lp)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -145,3 +178,5 @@ abstract class PhotoWallAdapter : RecyclerView.Adapter<PhotoWallAdapter.PhotoVie
         }
     }
 }
+
+data class Positon(var x: Float, var y: Float)

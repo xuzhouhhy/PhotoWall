@@ -8,8 +8,6 @@ import android.util.Log
  * created by hanhongyun on 2018/10/29 15:39
  *
  */
-class size constructor()
-
 data class Image constructor(val name: String, val path: String) {
 
     constructor(name: String, path: String, type: String, sizeInbyte: Long, width: Int,
@@ -42,8 +40,6 @@ data class Image constructor(val name: String, val path: String) {
 class ImageDataSource constructor(val contextWrapper: ContextWrapper) {
 
     companion object {
-        const val LOADER_ALL = 0         //加载所有图片
-        //        const val LOADER_CATEGORY = 1    //分类加载图片
         val TAG = ImageDataSource::class.java.simpleName
     }
 
